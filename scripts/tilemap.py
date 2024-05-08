@@ -22,10 +22,10 @@ class Tilemap:
     def __init__(self, game, tile_size=16):
         self.game = game
         self.tile_size = tile_size
-        self.tilemap = {}
-        self.offgrid_tiles = []
+        self.tilemap = {}     # for not physics
+        self.offgrid_tiles = []     # for things with physics
         
-    def extract(self, id_pairs, keep=False):
+    def extract(self, id_pairs, keep=False):  # False if you want to delate them from the map
         matches = []
         for tile in self.offgrid_tiles.copy():
             if (tile['type'], tile['variant']) in id_pairs:
@@ -67,7 +67,7 @@ class Tilemap:
         self.tilemap = map_data['tilemap']
         self.tile_size = map_data['tile_size']
         self.offgrid_tiles = map_data['offgrid']
-        
+
     def solid_check(self, pos):
         tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
         if tile_loc in self.tilemap:

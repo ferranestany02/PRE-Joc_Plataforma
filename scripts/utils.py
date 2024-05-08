@@ -6,7 +6,7 @@ BASE_IMG_PATH = 'data/images/'
 
 def load_image(path):
     img = pygame.image.load(BASE_IMG_PATH + path).convert()
-    img.set_colorkey((0, 0, 0))
+    img.set_colorkey((0, 0, 0))   # To delate the black part behind the image
     return img
 
 def load_images(path):

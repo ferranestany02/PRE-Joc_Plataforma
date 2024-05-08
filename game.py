@@ -10,7 +10,9 @@ from scripts.entities import PhysicsEntity, Player, Enemy
 from scripts.tilemap import Tilemap
 from scripts.particle import Particle
 from scripts.spark import Spark
+from scripts.coins_2 import Coins
 
+pygame.font.init()
 
 class Game:
     def __init__(self):
@@ -22,7 +24,9 @@ class Game:
         self.display_2 = pygame.Surface((320, 240))
         self.clock = pygame.time.Clock()
         self.movement = [False, False]
+        self.score = 0
         self.assets = {
+            'coin': load_images('coin'),
             'decor': load_images('tiles/decor'),
             'grass': load_images('tiles/grass'),
             'large_decor': load_images('tiles/large_decor'),
@@ -31,6 +35,7 @@ class Game:
             'background': load_image('background.png'),
             'clouds': load_images('clouds'),
             'enemy/idle': Animation(load_images('entities/enemy/idle'), img_dur=6),
+            'coin/rotate': Animation(load_images('coin'), img_dur=8),
             'enemy/run': Animation(load_images('entities/enemy/run'), img_dur=4),
             'player/idle': Animation(load_images('entities/player/idle'), img_dur=6),
             'player/run': Animation(load_images('entities/player/run'), img_dur=4),
@@ -42,22 +47,23 @@ class Game:
             'gun': load_image('gun.png'),
             'projectile': load_image('projectile.png'),
         }
-        
         self.sfx = {
             'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
             'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
             'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
             'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
             'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
+            'coin': pygame.mixer.Sound('data/sfx/coin.flac')
         }
-        
         self.sfx['ambience'].set_volume(0.2)
         self.sfx['shoot'].set_volume(0.4)
         self.sfx['hit'].set_volume(0.8)
         self.sfx['dash'].set_volume(0.3)
         self.sfx['jump'].set_volume(0.7)
+        self.sfx['coin'].set_volume(0.5)
 
-        self.fuente_menu = pygame.font.Font('data/adobemingstd-light.otf', size=50)
+        self.fuente_menu = pygame.font.Font('data/adobemingstd-light.otf', 50)
+        self.fuente_juego = pygame.font.SysFont("Arial", 16)
         self.fondo_menu = pygame.image.load('data/images/background.png').convert_alpha()
 
         self.fondo_menu_rect = self.fondo_menu.get_rect(center=(320, 242))
@@ -65,19 +71,16 @@ class Game:
         self.mensaje_inicio = self.fuente_menu.render("Pulsa enter para jugar", False, (100, 110, 230))
         self.mensaje_inicio_rect = self.mensaje_inicio.get_rect(center=(320, 80))
 
-        self.mensaje_final = self.fuente_menu.render('Enhorabuena!!, final del juego', False, (100, 110, 230))
-        self.mensaje_final_rect = self.mensaje_final.get_rect(center=(320, 80))
-
         self.player = Player(self, (50, 50), (8, 15))
-        
+
         self.tilemap = Tilemap(self, tile_size=16)
-        
+
         self.level = 0
         self.load_level(self.level)
-        
+
         self.screenshake = 0
         self.menu = True
-        
+
     def load_level(self, map_id):
 
         self.tilemap.load('data/maps/' + str(map_id) + '.json')
@@ -94,6 +97,10 @@ class Game:
             else:
                 self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
 
+        self.coins = []
+        for c in self.tilemap.extract([('coin', 0)], keep=False):
+            self.coins.append(Coins(self, c['pos'], (16, 16)))
+
         self.projectiles = []
         self.particles = []
         self.sparks = []
@@ -101,12 +108,11 @@ class Game:
         self.dead = 0
         self.transition = -30
 
-
     def run(self):
         pygame.mixer.music.load('data/music.wav')
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-        
+
         self.sfx['ambience'].play(-1)
 
         while self.menu:
@@ -123,12 +129,25 @@ class Game:
 
             pygame.display.update()
             self.clock.tick(60)
-        
+
         while not self.menu:
 
             self.display.fill((0, 0, 0, 0))
             self.display_2.blit(self.assets['background'], (0, 0))
             self.screenshake = max(0, self.screenshake - 1)
+
+            # Coins collect
+            for c in self.coins:
+                if self.player.rect().colliderect(c.rect):
+                    self.score += 1
+                    self.coins.remove(c)
+                    self.sfx['coin'].play(0)
+
+            for c in self.coins.copy():
+                collect = c.update(self.tilemap, (0, 0))
+                c.render(self.display, offset=self.scroll)
+                if collect:
+                    self.coins.remove(c)
 
             if not len(self.enemies):
                 self.transition += 1
@@ -137,35 +156,36 @@ class Game:
                     self.load_level(self.level)
             if self.transition < 0:
                 self.transition += 1
-            
+
             if self.dead:
+                self.score = 0
                 self.dead += 1
                 if self.dead >= 10:
                     self.transition = min(30, self.transition + 1)
                 if self.dead > 40:
                     self.load_level(self.level)
-            
+
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
             self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
-            
+
             for rect in self.leaf_spawners:
                 if random.random() * 49999 < rect.width * rect.height:
                     pos = (rect.x + random.random() * rect.width, rect.y + random.random() * rect.height)
                     self.particles.append(Particle(self, 'leaf', pos, velocity=[-0.1, 0.3], frame=random.randint(0, 20)))
-            
+
             self.tilemap.render(self.display, offset=render_scroll)
-            
+
             for enemy in self.enemies.copy():
                 kill = enemy.update(self.tilemap, (0, 0))
                 enemy.render(self.display, offset=render_scroll)
                 if kill:
                     self.enemies.remove(enemy)
-            
+
             if not self.dead:
                 self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
                 self.player.render(self.display, offset=render_scroll)
-            
+
             # [[x, y], direction, timer]
             for projectile in self.projectiles.copy():
                 projectile[0][0] += projectile[1]
@@ -189,18 +209,18 @@ class Game:
                             speed = random.random() * 5
                             self.sparks.append(Spark(self.player.rect().center, angle, 2 + random.random()))
                             self.particles.append(Particle(self, 'particle', self.player.rect().center, velocity=[math.cos(angle + math.pi) * speed * 0.5, math.sin(angle + math.pi) * speed * 0.5], frame=random.randint(0, 7)))
-                        
+
             for spark in self.sparks.copy():
                 kill = spark.update()
                 spark.render(self.display, offset=render_scroll)
                 if kill:
                     self.sparks.remove(spark)
-                    
+
             display_mask = pygame.mask.from_surface(self.display)
             display_sillhouette = display_mask.to_surface(setcolor=(0, 0, 0, 180), unsetcolor=(0, 0, 0, 0))
             for offset in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 self.display_2.blit(display_sillhouette, offset)
-            
+
             for particle in self.particles.copy():
                 kill = particle.update()
                 particle.render(self.display, offset=render_scroll)
@@ -208,7 +228,7 @@ class Game:
                     particle.pos[0] += math.sin(particle.animation.frame * 0.035) * 0.3
                 if kill:
                     self.particles.remove(particle)
-            
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -228,15 +248,20 @@ class Game:
                         self.movement[0] = False
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
-                        
+
             if self.transition:
                 transition_surf = pygame.Surface(self.display.get_size())
                 pygame.draw.circle(transition_surf, (255, 255, 255), (self.display.get_width() // 2, self.display.get_height() // 2), (30 - abs(self.transition)) * 8)
                 transition_surf.set_colorkey((255, 255, 255))
                 self.display.blit(transition_surf, (0, 0))
-                
+
             self.display_2.blit(self.display, (0, 0))
-            
+
+            # Display score
+            self.mensaje_score = self.fuente_juego.render('Puntuación: ' + str(self.score), True, (0, 0, 0))
+            self.mensaje_score_rect = self.mensaje_score.get_rect(center=(250, 14))
+            self.display_2.blit(self.mensaje_score, self.mensaje_score_rect)
+
             screenshake_offset = (random.random() * self.screenshake - self.screenshake / 2, random.random() * self.screenshake - self.screenshake / 2)
             self.screen.blit(pygame.transform.scale(self.display_2, self.screen.get_size()), screenshake_offset)
             pygame.display.update()
