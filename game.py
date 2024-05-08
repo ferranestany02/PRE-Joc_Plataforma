@@ -12,7 +12,6 @@ from scripts.particle import Particle
 from scripts.spark import Spark
 from scripts.coins_2 import Coins
 
-pygame.font.init()
 
 class Game:
     def __init__(self):
