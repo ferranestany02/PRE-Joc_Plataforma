@@ -19,33 +19,36 @@ class Game:
         pygame.display.set_caption('Juego de plataforma')
         self.screen = pygame.display.set_mode((640, 480))
 
-        self.display = pygame.Surface((320, 240), pygame.SRCALPHA)
-        self.display_2 = pygame.Surface((320, 240))
+        self.display = pygame.Surface((640, 480), pygame.SRCALPHA)
+
         self.clock = pygame.time.Clock()
         self.movement = [False, False]
         self.score = 0
         self.assets = {
             'coin': load_images('coin'),
-            'decor': load_images('tiles/decor'),
-            'grass': load_images('tiles/grass'),
-            'large_decor': load_images('tiles/large_decor'),
+            'decor': load_images('pixel_platform/Floor'),
+            'grass': load_images('pixel_platform/Floor'),
+            'sea': load_images('pixel_platform/Sea'),
+            'large_decor': load_images('pixel_platform/Decor'),
             'stone': load_images('tiles/stone'),
-            'player': load_image('entities/player.png'),
+            'player': load_image('entities/Satyr/idle/00.png'),
             'background': load_image('background.png'),
-            'clouds': load_images('clouds'),
-            'enemy/idle': Animation(load_images('entities/enemy/idle'), img_dur=6),
+            'enemy/idle': Animation(load_images('entities/ranger/idle'), img_dur=6),
+            'enemy/attack': Animation(load_images('entities/ranger/attack'), img_dur=8),
             'coin/rotate': Animation(load_images('coin'), img_dur=8),
-            'enemy/run': Animation(load_images('entities/enemy/run'), img_dur=4),
-            'player/idle': Animation(load_images('entities/player/idle'), img_dur=6),
-            'player/run': Animation(load_images('entities/player/run'), img_dur=4),
-            'player/jump': Animation(load_images('entities/player/jump')),
-            'player/slide': Animation(load_images('entities/player/slide')),
-            'player/wall_slide': Animation(load_images('entities/player/wall_slide')),
+            'enemy/run': Animation(load_images('entities/ranger/run'), img_dur=4),
+            'player/idle': Animation(load_images('entities/Satyr/idle'), img_dur=6),
+            'player/run': Animation(load_images('entities/Satyr/run'), img_dur=4),
+            'player/jump': Animation(load_images('entities/Satyr/jump'), img_dur=50),
+            'player/attack': Animation(load_images('entities/Satyr/attack'), img_dur=50),
+            'player/wall_slide': Animation(load_images('entities/Satyr/wall_slide')),
             'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
             'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
-            'gun': load_image('gun.png'),
-            'projectile': load_image('projectile.png'),
+            'arrow_1': load_image('arrow_1.png'),
+            'arrow_2': load_image('arrow_2.png'),
+
         }
+
         self.sfx = {
             'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
             'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
@@ -70,9 +73,9 @@ class Game:
         self.mensaje_inicio = self.fuente_menu.render("Pulsa enter para jugar", False, (100, 110, 230))
         self.mensaje_inicio_rect = self.mensaje_inicio.get_rect(center=(320, 80))
 
-        self.player = Player(self, (50, 50), (8, 15))
+        self.player = Player(self, (50, 50), (16, 41))
 
-        self.tilemap = Tilemap(self, tile_size=16)
+        self.tilemap = Tilemap(self, tile_size=32)
 
         self.level = 0
         self.load_level(self.level)
@@ -81,12 +84,8 @@ class Game:
         self.menu = True
 
     def load_level(self, map_id):
-
-        self.tilemap.load('data/maps/' + str(map_id) + '.json')
-
-        self.leaf_spawners = []
-        for tree in self.tilemap.extract([('large_decor', 2)], keep=True):
-            self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
+        self.tilemap.load('map.json')
+        # self.tilemap.load('data/maps/' + str(map_id) + '.json')
 
         self.enemies = []
         for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1)]):
@@ -94,11 +93,11 @@ class Game:
                 self.player.pos = spawner['pos']
                 self.player.air_time = 0
             else:
-                self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
+                self.enemies.append(Enemy(self, spawner['pos'], (16, 28)))
 
         self.coins = []
         for c in self.tilemap.extract([('coin', 0)], keep=False):
-            self.coins.append(Coins(self, c['pos'], (16, 16)))
+            self.coins.append(Coins(self, c['pos'], (32, 32)))
 
         self.projectiles = []
         self.particles = []
@@ -132,7 +131,7 @@ class Game:
         while not self.menu:
 
             self.display.fill((0, 0, 0, 0))
-            self.display_2.blit(self.assets['background'], (0, 0))
+            self.display.blit(self.assets['background'], (0, 0))
             self.screenshake = max(0, self.screenshake - 1)
 
             # Coins collect
@@ -168,11 +167,6 @@ class Game:
             self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
 
-            for rect in self.leaf_spawners:
-                if random.random() * 49999 < rect.width * rect.height:
-                    pos = (rect.x + random.random() * rect.width, rect.y + random.random() * rect.height)
-                    self.particles.append(Particle(self, 'leaf', pos, velocity=[-0.1, 0.3], frame=random.randint(0, 20)))
-
             self.tilemap.render(self.display, offset=render_scroll)
 
             for enemy in self.enemies.copy():
@@ -189,8 +183,14 @@ class Game:
             for projectile in self.projectiles.copy():
                 projectile[0][0] += projectile[1]
                 projectile[2] += 1
-                img = self.assets['projectile']
+
+                if self.player.rect().centerx < enemy.rect().centerx:
+                    img = self.assets['arrow_1']
+                else:
+                    img = self.assets['arrow_2']
+
                 self.display.blit(img, (projectile[0][0] - img.get_width() / 2 - render_scroll[0], projectile[0][1] - img.get_height() / 2 - render_scroll[1]))
+
                 if self.tilemap.solid_check(projectile[0]):
                     self.projectiles.remove(projectile)
                     for i in range(4):
@@ -215,16 +215,10 @@ class Game:
                 if kill:
                     self.sparks.remove(spark)
 
-            display_mask = pygame.mask.from_surface(self.display)
-            display_sillhouette = display_mask.to_surface(setcolor=(0, 0, 0, 180), unsetcolor=(0, 0, 0, 0))
-            for offset in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                self.display_2.blit(display_sillhouette, offset)
-
             for particle in self.particles.copy():
                 kill = particle.update()
                 particle.render(self.display, offset=render_scroll)
-                if particle.type == 'leaf':
-                    particle.pos[0] += math.sin(particle.animation.frame * 0.035) * 0.3
+
                 if kill:
                     self.particles.remove(particle)
 
@@ -254,15 +248,13 @@ class Game:
                 transition_surf.set_colorkey((255, 255, 255))
                 self.display.blit(transition_surf, (0, 0))
 
-            self.display_2.blit(self.display, (0, 0))
-
             # Display score
             self.mensaje_score = self.fuente_juego.render('Puntuación: ' + str(self.score), True, (0, 0, 0))
             self.mensaje_score_rect = self.mensaje_score.get_rect(center=(250, 14))
-            self.display_2.blit(self.mensaje_score, self.mensaje_score_rect)
+            self.display.blit(self.mensaje_score, self.mensaje_score_rect)
 
             screenshake_offset = (random.random() * self.screenshake - self.screenshake / 2, random.random() * self.screenshake - self.screenshake / 2)
-            self.screen.blit(pygame.transform.scale(self.display_2, self.screen.get_size()), screenshake_offset)
+            self.screen.blit(self.display, screenshake_offset)
             pygame.display.update()
             self.clock.tick(60)
 

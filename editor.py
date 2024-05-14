@@ -6,7 +6,7 @@ from scripts.utils import load_images
 from scripts.utils import load_image
 from scripts.tilemap import Tilemap
 
-RENDER_SCALE = 2.0
+RENDER_SCALE = 1.0
 
 class Editor:
     def __init__(self):
@@ -14,23 +14,24 @@ class Editor:
 
         pygame.display.set_caption('editor')
         self.screen = pygame.display.set_mode((640, 480))
-        self.display = pygame.Surface((320, 240))
+        self.display = pygame.Surface((640, 480))
 
         self.clock = pygame.time.Clock()
         
         self.assets = {
             'coin': load_images('coin'),
-            'decor': load_images('tiles/decor'),
-            'grass': load_images('tiles/grass'),
-            'large_decor': load_images('tiles/large_decor'),
-            'stone': load_images('tiles/stone'),
+            'decor': load_images('pixel_platform/Floor'),
+            'grass': load_images('pixel_platform/Floor'),
             'spawners': load_images('tiles/spawners'),
+            'sea': load_images('pixel_platform/Sea'),
+            'large_decor': load_images('pixel_platform/Decor'),
+            'stone': load_images('tiles/stone'),
 
         }
         
         self.movement = [False, False, False, False]
         
-        self.tilemap = Tilemap(self, tile_size=16)
+        self.tilemap = Tilemap(self, tile_size=32)
         
         try:
             self.tilemap.load('map.json')
@@ -59,7 +60,7 @@ class Editor:
             self.tilemap.render(self.display, offset=render_scroll)
 
             current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy()
-            current_tile_img.set_alpha(100)
+
 
             mpos = pygame.mouse.get_pos()
             mpos = (mpos[0] / RENDER_SCALE, mpos[1] / RENDER_SCALE)
@@ -113,7 +114,6 @@ class Editor:
                         self.clicking = False
                     if event.button == 3:
                         self.right_clicking = False
-                        
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_a:
                         self.movement[0] = True
@@ -143,7 +143,7 @@ class Editor:
                     if event.key == pygame.K_LSHIFT:
                         self.shift = False
             
-            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+            self.screen.blit(self.display, (0, 0))
             pygame.display.update()
             self.clock.tick(60)
 
