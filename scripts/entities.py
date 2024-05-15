@@ -175,7 +175,7 @@ class Player(PhysicsEntity):
         if not self.wall_slide:
             if self.air_time > 4:
                 self.set_action('jump')
-            if self.dashing:
+            elif self.dashing:
                 self.set_action('attack')
             elif movement[0] != 0:
                 self.set_action('run')
