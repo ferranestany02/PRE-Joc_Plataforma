@@ -15,6 +15,42 @@ def load_images(path):
         images.append(load_image(path + '/' + img_name))
     return images
 
+def carga_mapa():
+    return {
+        'coin': load_images('coin'),
+        'decor': load_images('pixel_platform/Floor'),
+        'grass': load_images('pixel_platform/Floor'),
+        'sea': load_images('pixel_platform/Sea'),
+        'large_decor': load_images('pixel_platform/Decor'),
+        'stone': load_images('tiles/stone'),
+        'player': load_image('entities/Satyr/idle/00.png'),
+        'background': load_image('background.png'),
+        'enemy/idle': Animation(load_images('entities/ranger/idle'), img_dur=6),
+        'enemy/attack': Animation(load_images('entities/ranger/attack'), img_dur=8),
+        'coin/rotate': Animation(load_images('coin'), img_dur=8),
+        'enemy/run': Animation(load_images('entities/ranger/run'), img_dur=4),
+        'player/idle': Animation(load_images('entities/Satyr/idle'), img_dur=6),
+        'player/run': Animation(load_images('entities/Satyr/run'), img_dur=4),
+        'player/jump': Animation(load_images('entities/Satyr/jump'), img_dur=50),
+        'player/attack': Animation(load_images('entities/Satyr/attack'), img_dur=50),
+        'player/wall_slide': Animation(load_images('entities/Satyr/wall_slide')),
+        'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
+        'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
+        'arrow_1': load_image('arrow_1.png'),
+        'arrow_2': load_image('arrow_2.png'),
+
+    }
+
+def carga_musica():
+    return {
+        'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
+        'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
+        'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
+        'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
+        'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
+        'coin': pygame.mixer.Sound('data/sfx/coin.flac')
+    }
+
 class Animation:
     def __init__(self, images, img_dur=5, loop=True):
         self.images = images

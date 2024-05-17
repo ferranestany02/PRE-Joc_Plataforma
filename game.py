@@ -5,73 +5,44 @@ import random
 
 import pygame
 
-from scripts.utils import load_image, load_images, Animation
+from scripts.utils import load_image, load_images, Animation, carga_mapa, carga_musica
 from scripts.entities import PhysicsEntity, Player, Enemy
 from scripts.tilemap import Tilemap
 from scripts.particle import Particle
 from scripts.spark import Spark
 from scripts.coins_2 import Coins
+from scripts.Settings import Settings
+from Menu import Menu
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        pygame.display.set_caption('Juego de plataforma')
-        self.screen = pygame.display.set_mode((640, 480))
 
-        self.display = pygame.Surface((640, 480), pygame.SRCALPHA)
+        self.ai_setting = Settings()
+
+        self.screen = pygame.display.set_mode((self.ai_setting.screen_width, self.ai_setting.screen_height))
+
+        pygame.display.set_caption('Juego de plataforma')
+        self.display = pygame.Surface((self.ai_setting.screen_width, self.ai_setting.screen_height), pygame.SRCALPHA)
 
         self.clock = pygame.time.Clock()
         self.movement = [False, False]
         self.score = 0
-        self.assets = {
-            'coin': load_images('coin'),
-            'decor': load_images('pixel_platform/Floor'),
-            'grass': load_images('pixel_platform/Floor'),
-            'sea': load_images('pixel_platform/Sea'),
-            'large_decor': load_images('pixel_platform/Decor'),
-            'stone': load_images('tiles/stone'),
-            'player': load_image('entities/Satyr/idle/00.png'),
-            'background': load_image('background.png'),
-            'enemy/idle': Animation(load_images('entities/ranger/idle'), img_dur=6),
-            'enemy/attack': Animation(load_images('entities/ranger/attack'), img_dur=8),
-            'coin/rotate': Animation(load_images('coin'), img_dur=8),
-            'enemy/run': Animation(load_images('entities/ranger/run'), img_dur=4),
-            'player/idle': Animation(load_images('entities/Satyr/idle'), img_dur=6),
-            'player/run': Animation(load_images('entities/Satyr/run'), img_dur=4),
-            'player/jump': Animation(load_images('entities/Satyr/jump'), img_dur=50),
-            'player/attack': Animation(load_images('entities/Satyr/attack'), img_dur=50),
-            'player/wall_slide': Animation(load_images('entities/Satyr/wall_slide')),
-            'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
-            'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
-            'arrow_1': load_image('arrow_1.png'),
-            'arrow_2': load_image('arrow_2.png'),
 
-        }
+        self.assets = carga_mapa()
+        self.sfx = carga_musica()
 
-        self.sfx = {
-            'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
-            'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
-            'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
-            'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
-            'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
-            'coin': pygame.mixer.Sound('data/sfx/coin.flac')
-        }
-        self.sfx['ambience'].set_volume(0.2)
-        self.sfx['shoot'].set_volume(0.4)
-        self.sfx['hit'].set_volume(0.8)
-        self.sfx['dash'].set_volume(0.3)
-        self.sfx['jump'].set_volume(0.7)
-        self.sfx['coin'].set_volume(0.5)
+        self.sfx['coin'].set_volume(self.ai_setting.volumen_coin)
+        self.sfx['dash'].set_volume(self.ai_setting.volumen_dash)
+        self.sfx['ambience'].set_volume(self.ai_setting.volumen_ambience)
+        self.sfx['jump'].set_volume(self.ai_setting.volumen_jump)
+        self.sfx['hit'].set_volume(self.ai_setting.volumen_hit)
+        self.sfx['shoot'].set_volume(self.ai_setting.volumen_shoot)
 
-        self.fuente_menu = pygame.font.Font('data/adobemingstd-light.otf', 50)
+        self.menu = Menu()
+
         self.fuente_juego = pygame.font.SysFont("Arial", 16)
-        self.fondo_menu = pygame.image.load('data/images/background.png').convert_alpha()
-
-        self.fondo_menu_rect = self.fondo_menu.get_rect(center=(320, 242))
-
-        self.mensaje_inicio = self.fuente_menu.render("Pulsa enter para jugar", False, (100, 110, 230))
-        self.mensaje_inicio_rect = self.mensaje_inicio.get_rect(center=(320, 80))
 
         self.player = Player(self, (50, 50), (16, 41))
 
@@ -79,9 +50,6 @@ class Game:
 
         self.level = 0
         self.load_level(self.level)
-
-        self.screenshake = 0
-        self.menu = True
 
     def load_level(self, map_id):
         self.tilemap.load('map.json')
@@ -106,6 +74,53 @@ class Game:
         self.dead = 0
         self.transition = -30
 
+    def main_menu(self):
+
+        while True:
+
+            self.menu.draw_button(self.screen, self.menu.jugar_but())
+            self.menu.draw_button(self.screen, self.menu.inst_but())
+            self.menu.draw_button(self.screen, self.menu.quit_but())
+
+            self.screen.blit(self.menu.back_menu, (0, 0))
+
+            mx, my = pygame.mouse.get_pos()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        if self.menu.jugar_but().collidepoint((mx, my)):
+                            self.run()
+
+                        if self.menu.inst_but().collidepoint((mx, my)):
+                            self.instructions()
+
+                        if self.menu.quit_but().collidepoint((mx, my)):
+                            pygame.quit()
+                            exit()
+
+            pygame.display.update()
+            self.clock.tick(60)
+
+    def instructions(self):
+        self.screen.blit(self.menu.back_instructions, (0, 0))
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        showing_instructions = False
+
+            self.screen.blit(self.menu.back_instructions, (0, 0))
+            pygame.display.update()
+            self.clock.tick(60)
+
     def run(self):
         pygame.mixer.music.load('data/music.wav')
         pygame.mixer.music.set_volume(0.5)
@@ -113,26 +128,10 @@ class Game:
 
         self.sfx['ambience'].play(-1)
 
-        while self.menu:
-
-            self.screen.blit(self.fondo_menu, self.fondo_menu_rect)
-            self.screen.blit(self.mensaje_inicio, self.mensaje_inicio_rect)
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    self.menu = False
-
-            pygame.display.update()
-            self.clock.tick(60)
-
-        while not self.menu:
+        while True:
 
             self.display.fill((0, 0, 0, 0))
             self.display.blit(self.assets['background'], (0, 0))
-            self.screenshake = max(0, self.screenshake - 1)
 
             # Coins collect
             for c in self.coins:
@@ -189,12 +188,15 @@ class Game:
                 else:
                     img = self.assets['arrow_2']
 
-                self.display.blit(img, (projectile[0][0] - img.get_width() / 2 - render_scroll[0], projectile[0][1] - img.get_height() / 2 - render_scroll[1]))
+                self.display.blit(img, (projectile[0][0] - img.get_width() / 2 - render_scroll[0],
+                                        projectile[0][1] - img.get_height() / 2 - render_scroll[1]))
 
                 if self.tilemap.solid_check(projectile[0]):
                     self.projectiles.remove(projectile)
                     for i in range(4):
-                        self.sparks.append(Spark(projectile[0], random.random() - 0.5 + (math.pi if projectile[1] > 0 else 0), 2 + random.random()))
+                        self.sparks.append(
+                            Spark(projectile[0], random.random() - 0.5 + (math.pi if projectile[1] > 0 else 0),
+                                  2 + random.random()))
                 elif projectile[2] > 360:
                     self.projectiles.remove(projectile)
                 elif abs(self.player.dashing) < 50:
@@ -202,12 +204,14 @@ class Game:
                         self.projectiles.remove(projectile)
                         self.dead += 1
                         self.sfx['hit'].play()
-                        self.screenshake = max(16, self.screenshake)
                         for i in range(30):
                             angle = random.random() * math.pi * 2
                             speed = random.random() * 5
                             self.sparks.append(Spark(self.player.rect().center, angle, 2 + random.random()))
-                            self.particles.append(Particle(self, 'particle', self.player.rect().center, velocity=[math.cos(angle + math.pi) * speed * 0.5, math.sin(angle + math.pi) * speed * 0.5], frame=random.randint(0, 7)))
+                            self.particles.append(Particle(self, 'particle', self.player.rect().center,
+                                                           velocity=[math.cos(angle + math.pi) * speed * 0.5,
+                                                                     math.sin(angle + math.pi) * speed * 0.5],
+                                                           frame=random.randint(0, 7)))
 
             for spark in self.sparks.copy():
                 kill = spark.update()
@@ -244,7 +248,9 @@ class Game:
 
             if self.transition:
                 transition_surf = pygame.Surface(self.display.get_size())
-                pygame.draw.circle(transition_surf, (255, 255, 255), (self.display.get_width() // 2, self.display.get_height() // 2), (30 - abs(self.transition)) * 8)
+                pygame.draw.circle(transition_surf, (255, 255, 255),
+                                   (self.display.get_width() // 2, self.display.get_height() // 2),
+                                   (30 - abs(self.transition)) * 8)
                 transition_surf.set_colorkey((255, 255, 255))
                 self.display.blit(transition_surf, (0, 0))
 
@@ -253,9 +259,9 @@ class Game:
             self.mensaje_score_rect = self.mensaje_score.get_rect(center=(250, 14))
             self.display.blit(self.mensaje_score, self.mensaje_score_rect)
 
-            screenshake_offset = (random.random() * self.screenshake - self.screenshake / 2, random.random() * self.screenshake - self.screenshake / 2)
-            self.screen.blit(self.display, screenshake_offset)
+            self.screen.blit(self.display, (0, 0))
             pygame.display.update()
             self.clock.tick(60)
 
-Game().run()
+
+Game().main_menu()
