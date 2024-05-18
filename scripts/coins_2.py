@@ -1,5 +1,6 @@
 import pygame
 
+
 class Coins:
     def __init__(self, game, pos, size):
         self.game = game
@@ -17,7 +18,7 @@ class Coins:
             self.action = action
             self.animation = self.game.assets[self.action].copy()
 
-    def update(self, tilemap, movement=(0, 0)):   # update on every frame, s'han de quedar quiets i no moure amb la càmera
+    def update(self, tilemap, movement=(0, 0)):
 
         self.animation.update()
         self.set_action('coin/rotate')

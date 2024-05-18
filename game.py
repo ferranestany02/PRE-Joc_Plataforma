@@ -5,14 +5,15 @@ import random
 
 import pygame
 
-from scripts.utils import load_image, load_images, Animation, carga_mapa, carga_musica
-from scripts.entities import PhysicsEntity, Player, Enemy
+from scripts.utils import carga_mapa, carga_musica
+from scripts.entities import Player, Enemy
 from scripts.tilemap import Tilemap
 from scripts.particle import Particle
 from scripts.spark import Spark
 from scripts.coins_2 import Coins
 from scripts.Settings import Settings
 from Menu import Menu
+import scripts.game_functions as gf
 
 
 class Game:
@@ -106,16 +107,15 @@ class Game:
             self.clock.tick(60)
 
     def instructions(self):
-        self.screen.blit(self.menu.back_instructions, (0, 0))
-
         while True:
+            self.screen.blit(self.menu.back_instructions, (0, 0))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        showing_instructions = False
+                        self.main_menu()
 
             self.screen.blit(self.menu.back_instructions, (0, 0))
             pygame.display.update()
@@ -151,6 +151,7 @@ class Game:
                 if self.transition > 30:
                     self.level = min(self.level + 1, len(os.listdir('data/maps')) - 1)
                     self.load_level(self.level)
+
             if self.transition < 0:
                 self.transition += 1
 
@@ -226,25 +227,7 @@ class Game:
                 if kill:
                     self.particles.remove(particle)
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        self.movement[0] = True
-                    if event.key == pygame.K_RIGHT:
-                        self.movement[1] = True
-                    if event.key == pygame.K_UP:
-                        if self.player.jump():
-                            self.sfx['jump'].play()
-                    if event.key == pygame.K_x:
-                        self.player.dash()
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT:
-                        self.movement[0] = False
-                    if event.key == pygame.K_RIGHT:
-                        self.movement[1] = False
+            gf.check_events(self.movement, self.sfx['jump'], self.player)
 
             if self.transition:
                 transition_surf = pygame.Surface(self.display.get_size())
