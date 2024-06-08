@@ -142,11 +142,11 @@ class Model:
             projectile[0][0] += projectile[1]
             projectile[2] += 1
 
-            img = self.assets['arrow_1']
+            img = self.assets['arrow_2']
 
             for a in self.enemies.copy():
                 if self.player.rect().centerx < a.rect().centerx:
-                    img = self.assets['arrow_2']
+                    img = self.assets['arrow_1']
 
             surface.blit(img, (projectile[0][0] - img.get_width() / 2 - scroll[0],
                                projectile[0][1] - img.get_height() / 2 - scroll[1]))
