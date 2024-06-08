@@ -92,7 +92,6 @@ class View:
         self.presenter.model.a_score()
 
         while True:
-            print(self.presenter.model.records)
             self.display.fill((0, 0, 0, 0))
             self.display.blit(self.presenter.model.assets['background'], (0, 0))
             self.presenter.update_game(self.display, self.musica['coin'])
@@ -108,7 +107,7 @@ class View:
                 self.screen.blit(self.final, (0, 0))
 
             pygame.display.update()
-            self.clock.tick(60)
+            self.clock.tick(70)
 
 
 if __name__ == "__main__":

@@ -1,1 +1,1 @@
-{"max_score_0": 5, "max_score_1": 0, "max_score_2": 0}
+{"max_score_0": 0, "max_score_1": 0, "max_score_2": 0}
