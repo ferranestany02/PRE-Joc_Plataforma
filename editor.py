@@ -8,6 +8,7 @@ from scripts.tilemap import Tilemap
 
 RENDER_SCALE = 1.0
 
+
 class Editor:
     def __init__(self):
         pygame.init()
@@ -19,13 +20,14 @@ class Editor:
         self.clock = pygame.time.Clock()
         
         self.assets = {
+            'fin': load_images('fin'),
             'coin': load_images('coin'),
             'decor': load_images('pixel_platform/Floor'),
             'grass': load_images('pixel_platform/Floor'),
             'spawners': load_images('tiles/spawners'),
             'sea': load_images('pixel_platform/Sea'),
             'large_decor': load_images('pixel_platform/Decor'),
-            'stone': load_images('tiles/stone'),
+            'stone': load_images('tiles/stone')
 
         }
         

@@ -17,6 +17,7 @@ def load_images(path):
 
 def carga_mapa():
     return {
+        'fin': load_images('fin'),
         'coin': load_images('coin'),
         'decor': load_images('pixel_platform/Floor'),
         'grass': load_images('pixel_platform/Floor'),
@@ -37,7 +38,8 @@ def carga_mapa():
         'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
         'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
         'arrow_1': load_image('arrow_1.png'),
-        'arrow_2': load_image('arrow_2.png'),
+        'arrow_2': load_image('arrow_2.png')
+
 
     }
 
