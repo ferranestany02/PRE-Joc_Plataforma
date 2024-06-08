@@ -25,3 +25,5 @@ class Coins:
 
     def render(self, surf, offset=(0, 0)):
         surf.blit(self.animation.img(), (self.pos[0] - offset[0], self.pos[1] - offset[1]))
+
+

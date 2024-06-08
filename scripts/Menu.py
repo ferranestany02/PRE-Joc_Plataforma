@@ -10,9 +10,10 @@ class Menu:
 
         pygame.init()
         self.clock = pygame.time.Clock()
-        self.font_menu = pygame.font.Font('../Data/adobemingstd-light.otf', 50)
-        self.back_menu = pygame.image.load('../Data/images/menu/menu.jpeg').convert_alpha()
-        self.back_instructions = pygame.image.load('../Data/images/menu/instruciones.jpg').convert_alpha()
+        self.font_menu = pygame.font.Font('Data/main_menu/adobemingstd-light.otf', 50)
+        self.back_menu = pygame.image.load('Data/main_menu/menu.png').convert_alpha()
+        self.back_instructions = pygame.image.load('Data/main_menu/instrucciones.jpg').convert_alpha()
+        self.back_records = pygame.image.load('Data/main_menu/record.png').convert_alpha()
 
     def draw_text(self, text, color, surface, x, y, size):
         font_letra = pygame.font.SysFont(None, size)
@@ -28,26 +29,16 @@ class Menu:
         pygame.draw.rect(surface, (0, 0, 0), rec)
 
     def jugar_but(self):
-        return self.button(170, 260, 300, 40)
+        return self.button(218, 223, 227, 46)
 
     def inst_but(self):
-        return self.button(170, 352, 302, 38)
+        return self.button(218, 297, 227, 46)
+
+    def record_but(self):
+        return self.button(214, 372, 227, 46)
 
     def quit_but(self):
-        return self.button(250, 426, 120, 28)
-
-    def main_menu(self, surface):
-
-        surface.blit(self.back_menu, (0, 0))
-
-        self.draw_button(surface, self.jugar_but())
-        self.draw_text('Jugar', blue, surface, 240, 248, 80)
-
-        self.draw_button(surface, self.inst_but())
-        self.draw_text('¿Como jugar?', blue, surface, 160, 348, 60)
-
-        self.draw_button(surface,  self.quit_but())
-        self.draw_text('Quit', blue, surface, 250, 426, 50)
+        return self.button(276, 442, 98, 20)
 
 
 

@@ -4,7 +4,7 @@ import random
 import pygame
 
 from scripts.particle import Particle
-from scripts.spark import Spark
+from scripts.chispa import Spark
 
 
 class PhysicsEntity:
@@ -118,8 +118,7 @@ class Enemy(PhysicsEntity):
         
         if movement[0] != 0:
             self.set_action('run')
-        elif self.attack:
-            self.set_action('attack')
+
         else:
             self.set_action('idle')
             
@@ -152,7 +151,7 @@ class Player(PhysicsEntity):
         
         self.air_time += 1
 
-        if self.air_time > 120 and self.wall_slide == False:
+        if self.air_time > 200 and self.wall_slide == False:
             self.game.dead += 1
         
         if self.collisions['down']:

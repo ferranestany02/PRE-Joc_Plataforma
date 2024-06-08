@@ -2,7 +2,7 @@ import os
 
 import pygame
 
-BASE_IMG_PATH = 'data/images/'
+BASE_IMG_PATH = 'Data/'
 
 def load_image(path):
     img = pygame.image.load(BASE_IMG_PATH + path).convert()
@@ -17,40 +17,38 @@ def load_images(path):
 
 def carga_mapa():
     return {
-        'fin': load_images('fin'),
-        'coin': load_images('coin'),
-        'decor': load_images('pixel_platform/Floor'),
-        'grass': load_images('pixel_platform/Floor'),
-        'sea': load_images('pixel_platform/Sea'),
-        'large_decor': load_images('pixel_platform/Decor'),
-        'stone': load_images('tiles/stone'),
-        'player': load_image('entities/Satyr/idle/00.png'),
-        'background': load_image('background.png'),
-        'enemy/idle': Animation(load_images('entities/ranger/idle'), img_dur=6),
-        'enemy/attack': Animation(load_images('entities/ranger/attack'), img_dur=8),
-        'coin/rotate': Animation(load_images('coin'), img_dur=8),
-        'enemy/run': Animation(load_images('entities/ranger/run'), img_dur=4),
-        'player/idle': Animation(load_images('entities/Satyr/idle'), img_dur=6),
-        'player/run': Animation(load_images('entities/Satyr/run'), img_dur=4),
-        'player/jump': Animation(load_images('entities/Satyr/jump'), img_dur=50),
-        'player/attack': Animation(load_images('entities/Satyr/attack'), img_dur=50),
-        'player/wall_slide': Animation(load_images('entities/Satyr/wall_slide')),
-        'particle/leaf': Animation(load_images('particles/leaf'), img_dur=20, loop=False),
-        'particle/particle': Animation(load_images('particles/particle'), img_dur=6, loop=False),
-        'arrow_1': load_image('arrow_1.png'),
-        'arrow_2': load_image('arrow_2.png')
-
+        'coin': load_images('images/coin'),
+        'decor': load_images('mapa/Floor'),
+        'grass': load_images('mapa/Floor'),
+        'sea': load_images('mapa/Sea'),
+        'large_decor': load_images('mapa/Decor'),
+        'player': load_image('images/personajes/Satyr/idle/00.png'),
+        'background': load_image('images/background.png'),
+        'enemy/idle': Animation(load_images('images/personajes/ranger/idle'), img_dur=6),
+        'enemy/attack': Animation(load_images('images/personajes/ranger/attack'), img_dur=8),
+        'coin/rotate': Animation(load_images('images/coin'), img_dur=8),
+        'enemy/run': Animation(load_images('images/personajes/ranger/run'), img_dur=4),
+        'player/idle': Animation(load_images('images/personajes/Satyr/idle'), img_dur=6),
+        'player/run': Animation(load_images('images/personajes/Satyr/run'), img_dur=4),
+        'player/jump': Animation(load_images('images/personajes/Satyr/jump'), img_dur=50),
+        'player/attack': Animation(load_images('images/personajes/Satyr/attack'), img_dur=50),
+        'player/wall_slide': Animation(load_images('images/personajes/Satyr/wall_slide')),
+        'particle/particle': Animation(load_images('images/particles/particle'), img_dur=6, loop=False),
+        'arrow_1': load_image('images/arrow_1.png'),
+        'arrow_2': load_image('images/arrow_2.png'),
 
     }
 
 def carga_musica():
     return {
-        'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
-        'dash': pygame.mixer.Sound('data/sfx/dash.wav'),
-        'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
-        'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
-        'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
-        'coin': pygame.mixer.Sound('data/sfx/coin.flac')
+        'jump': pygame.mixer.Sound('Data/sfx/jump.wav'),
+        'dash': pygame.mixer.Sound('Data/sfx/dash.wav'),
+        'hit': pygame.mixer.Sound('Data/sfx/hit.wav'),
+        'shoot': pygame.mixer.Sound('Data/sfx/shoot.wav'),
+        'ambience': pygame.mixer.Sound('Data/sfx/ambience.wav'),
+        'coin': pygame.mixer.Sound('Data/sfx/coin.flac'),
+        'music': pygame.mixer.Sound('Data/sfx/music.mp3'),
+        'menu': pygame.mixer.Sound('Data/sfx/menu.wav')
     }
 
 class Animation:
