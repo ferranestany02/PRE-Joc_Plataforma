@@ -1,14 +1,14 @@
 import pygame
 from scripts.coins import Coins
-from scripts.entidades import Enemy
+from scripts.entidades import Enemigos
 import random
 
 import json
 import math
 from scripts.chispa import Spark
 from scripts.particle import Particle
-from scripts.mapa import Tilemap
-from scripts.entidades import Player
+from scripts.mapa import Mapa
+from scripts.entidades import Jugador
 from scripts.utils import carga_mapa, carga_musica
 
 
@@ -24,8 +24,8 @@ class Model:
         self.assets = carga_mapa()
         self.sfx = carga_musica()
 
-        self.player = Player(self, (50, 50), (16, 41))
-        self.tilemap = Tilemap(self, tile_size=32)
+        self.player = Jugador(self, (50, 50), (16, 41))
+        self.tilemap = Mapa(self, tile_size=32)
 
         self.level = 0
         self.load_level(self.level)
@@ -60,7 +60,7 @@ class Model:
                 self.player.pos = spawner['pos']
                 self.player.air_time = 0
             else:
-                self.enemies.append(Enemy(self, spawner['pos'], (16, 28)))
+                self.enemies.append(Enemigos(self, spawner['pos'], (16, 28)))
 
         self.coins = []
         for c in self.tilemap.extract([('coin', 0)], keep=False):

@@ -4,16 +4,19 @@ import pygame
 
 BASE_IMG_PATH = 'Data/'
 
+
 def load_image(path):
     img = pygame.image.load(BASE_IMG_PATH + path).convert()
     img.set_colorkey((0, 0, 0))   # To delate the black part behind the image
     return img
+
 
 def load_images(path):
     images = []
     for img_name in sorted(os.listdir(BASE_IMG_PATH + path)):
         images.append(load_image(path + '/' + img_name))
     return images
+
 
 def carga_mapa():
     return {
@@ -39,6 +42,7 @@ def carga_mapa():
 
     }
 
+
 def carga_musica():
     return {
         'jump': pygame.mixer.Sound('Data/sfx/jump.wav'),
@@ -50,6 +54,7 @@ def carga_musica():
         'music': pygame.mixer.Sound('Data/sfx/music.mp3'),
         'menu': pygame.mixer.Sound('Data/sfx/menu.wav')
     }
+
 
 class Animation:
     def __init__(self, images, img_dur=5, loop=True):

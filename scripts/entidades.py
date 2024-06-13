@@ -7,7 +7,7 @@ from scripts.particle import Particle
 from scripts.chispa import Spark
 
 
-class PhysicsEntity:
+class Fisicas:
     def __init__(self, game, e_type, pos, size):
         self.game = game
         self.type = e_type
@@ -78,7 +78,7 @@ class PhysicsEntity:
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), (self.pos[0] - offset[0] + self.anim_offset[0], self.pos[1] - offset[1] + self.anim_offset[1]))
 
 
-class Enemy(PhysicsEntity):
+class Enemigos(Fisicas):
     def __init__(self, game, pos, size):
         super().__init__(game, 'enemy', pos, size)
         
@@ -138,7 +138,7 @@ class Enemy(PhysicsEntity):
         super().render(surf, offset=offset)
 
 
-class Player(PhysicsEntity):
+class Jugador(Fisicas):
     def __init__(self, game, pos, size):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0
