@@ -1,15 +1,9 @@
 import pygame
 
-blue = (0, 0, 255)
-white = (255, 255, 255)
-black = (0, 0, 0)
-
 
 class Menu:
     def __init__(self):
 
-        pygame.init()
-        self.clock = pygame.time.Clock()
         self.font_menu = pygame.font.Font('Data/main_menu/adobemingstd-light.otf', 50)
         self.back_menu = pygame.image.load('Data/main_menu/menu.png').convert_alpha()
         self.back_instructions = pygame.image.load('Data/main_menu/instrucciones.jpg').convert_alpha()
